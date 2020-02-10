@@ -27,6 +27,7 @@ Options:
 """
 
 # Standard Python Libraries
+import hashlib
 import logging
 from pathlib import Path
 import shutil
@@ -216,6 +217,24 @@ def generate_credentials_file(credentials_file, missing_override_level=logging.E
             yield line
 
 
+def files_identical(path1, path2):
+    """Compare two files to see if they are identical.
+
+    Args:
+        path1: A pathlib.Path to the first file.
+        path2: A pathlib.Path to the second file.
+
+    Returns:
+        True if the files have the same hash, False otherwise.
+
+    """
+    hash1 = hashlib.sha256()
+    hash2 = hashlib.sha256()
+    hash1.update(path1.read_bytes())
+    hash2.update(path2.read_bytes())
+    return hash1.digest() == hash2.digest()
+
+
 def main():
     """Set up logging and generate a new credentials file."""
     args = docopt.docopt(__doc__, version=__version__)
@@ -269,11 +288,17 @@ def main():
             ):
                 out.write(line)
 
-        # If everything has succeeded we swap in the new file and backup the original
-        logging.info(f"Backing up previous credentials file to: {backup_file}")
-        shutil.move(credentials_file, backup_file)
-        logging.info(f"Moving new credentials file to: {credentials_file}")
-        shutil.move(temp_file, credentials_file)
+        # Check to see if the new files differs from the original.
+        if files_identical(temp_file, credentials_file):
+            # Nothing has changed.  Delete the temp file.  Preserve our backup.
+            logging.info("No changes applied.")
+            temp_file.unlink()
+        else:
+            # If everything has succeeded we swap in the new file and backup the original
+            logging.info(f"Backing up previous credentials file to: {backup_file}")
+            shutil.move(credentials_file, backup_file)
+            logging.info(f"Moving new credentials file to: {credentials_file}")
+            shutil.move(temp_file, credentials_file)
 
     # Stop logging and clean up
     logging.shutdown()
