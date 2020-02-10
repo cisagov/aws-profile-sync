@@ -11,7 +11,7 @@ EXIT STATUS
     >0  An error occurred.
 
 Usage:
-  aws-profile-sync [--log-level=LEVEL] [--credentials-file=FILENAME] [--dry-run]
+  aws-profile-sync [options]
   aws-profile-sync (-h | --help)
 
 Options:
@@ -23,6 +23,7 @@ Options:
   --log-level=LEVEL      If specified, then the log level will be set to
                          the specified value.  Valid values are "debug", "info",
                          "warning", "error", and "critical". [default: info]
+  -w --warn-missing      Treat missing overrides as a warning instead of an error.
 """
 
 # Standard Python Libraries
@@ -45,7 +46,7 @@ PROFILE_START = "["
 SYNC_PATH = "sync"
 
 
-def generate_profile(line_gen, config_overrides):
+def generate_profile(line_gen, config_overrides, missing_override_level=logging.ERROR):
     """Generate a profile block with applied overrides.
 
     Args:
@@ -74,9 +75,12 @@ def generate_profile(line_gen, config_overrides):
                 key = key.strip()
                 value = value.strip()
                 if not value and key not in config_overrides:
-                    logging.warning(
-                        f"No override provided for an empty external configuration line: {key}"
+                    logging.log(
+                        missing_override_level,
+                        f"No override provided for an empty external configuration line: {key}",
                     )
+                    if missing_override_level >= logging.ERROR:
+                        raise ValueError(f"Missing override: {key}")
                 yield f"{key} = {config_overrides.get(key, value)}"
             else:
                 # Comment or whitespace pass through
@@ -87,7 +91,7 @@ def generate_profile(line_gen, config_overrides):
     return
 
 
-def read_external(line_gen, config_overrides):
+def read_external(line_gen, config_overrides, missing_override_level=logging.ERROR):
     """Read an external source for profiles and apply configuration overrides.
 
     Args:
@@ -101,7 +105,11 @@ def read_external(line_gen, config_overrides):
     try:
         while True:
             if line_gen.peek().startswith(PROFILE_START):
-                for line in generate_profile(line_gen, config_overrides):
+                for line in generate_profile(
+                    line_gen,
+                    config_overrides,
+                    missing_override_level=missing_override_level,
+                ):
                     yield line
             else:
                 yield next(line_gen)
@@ -149,7 +157,7 @@ def parse_magic(line):
     return url, handler_params, config_overrides
 
 
-def handle_magic(magic_line, work_path):
+def handle_magic(magic_line, work_path, missing_override_level=logging.ERROR):
     """Handle the magic line and route it to the correct fetcher.
 
     Args:
@@ -170,10 +178,10 @@ def handle_magic(magic_line, work_path):
     # Instanciate the handler
     handler = clazz(work_path)
     external_profile_gen = peekable(handler.fetch(url, **handler_params))
-    return read_external(external_profile_gen, config_overrides)
+    return read_external(external_profile_gen, config_overrides, missing_override_level)
 
 
-def generate_credentials_file(credentials_file):
+def generate_credentials_file(credentials_file, missing_override_level=logging.ERROR):
     """Generate lines for a credentials file by expanding external references.
 
     Args:
@@ -194,7 +202,7 @@ def generate_credentials_file(credentials_file):
             break
         if line.startswith(MAGIC_START):
             yield line + "\n"
-            for external_line in handle_magic(line, work_path):
+            for external_line in handle_magic(line, work_path, missing_override_level):
                 yield external_line
                 if not external_line.endswith("\n"):
                     yield "\n"
@@ -236,6 +244,9 @@ def main():
     credentials_file = Path(args["--credentials-file"]).expanduser()
     dry_run = args["--dry-run"]
     log_level = args["--log-level"]
+    missing_override_level = (
+        logging.WARNING if args["--warn-missing"] else logging.ERROR
+    )
 
     # Set up logging
     logging.basicConfig(
@@ -245,7 +256,7 @@ def main():
     if dry_run:
         # The user requested a dry-run.  Just output the new file to stdout
         logging.info("Dry run.  Outputting credentials file to standard out:")
-        for line in generate_credentials_file(credentials_file):
+        for line in generate_credentials_file(credentials_file, missing_override_level):
             sys.stdout.write(line)
     else:
         # Carefully craft a new credentials file on disk.
@@ -253,7 +264,9 @@ def main():
         backup_file = credentials_file.with_suffix(".backup")
         logging.info(f"Writing new credentials file to: {temp_file}")
         with open(temp_file, "wt") as out:
-            for line in generate_credentials_file(credentials_file):
+            for line in generate_credentials_file(
+                credentials_file, missing_override_level
+            ):
                 out.write(line)
 
         # If everything has succeeded we swap in the new file and backup the original
