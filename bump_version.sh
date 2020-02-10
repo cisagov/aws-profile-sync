@@ -6,7 +6,7 @@ set -o nounset
 set -o errexit
 set -o pipefail
 
-VERSION_FILE=src/example/_version.py
+VERSION_FILE=src/aws_profile_sync/_version.py
 
 HELP_INFORMATION="bump_version.sh (show|major|minor|patch|prerelease|build|finalize)"
 
