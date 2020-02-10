@@ -39,7 +39,6 @@ from schema import And, Schema, SchemaError, Use
 from . import handlers
 from ._version import __version__
 
-COMMENT_START = "#"
 MAGIC_START = "#!profile-sync "
 MAGIC_STOP = "#!profile-sync-stop"
 PROFILE_START = "["
@@ -69,10 +68,6 @@ def generate_profile(line_gen, config_overrides):
         # Read until the next profile start or EOF
         while not line_gen.peek().startswith(PROFILE_START):
             line = next(line_gen)
-            # Pass comments through
-            if line.startswith(COMMENT_START):
-                yield line
-                continue
             # Output configurations after applying overrides
             if "=" in line:
                 key, value = line.split("=", 1)
@@ -83,6 +78,10 @@ def generate_profile(line_gen, config_overrides):
                         f"No override provided for an empty external configuration line: {key}"
                     )
                 yield f"{key} = {config_overrides.get(key, value)}"
+            else:
+                # Comment or whitespace pass through
+                yield line
+
     except StopIteration:
         pass
     return
@@ -104,7 +103,6 @@ def read_external(line_gen, config_overrides):
             if line_gen.peek().startswith(PROFILE_START):
                 for line in generate_profile(line_gen, config_overrides):
                     yield line
-                yield ""
             else:
                 yield next(line_gen)
     except StopIteration:
@@ -200,7 +198,7 @@ def generate_credentials_file(credentials_file):
                 yield external_line
                 if not external_line.endswith("\n"):
                     yield "\n"
-            yield MAGIC_STOP + "\n"
+            yield "\n" + MAGIC_STOP + "\n"
             in_magic_block = True
             continue
         if line.startswith(MAGIC_STOP):
