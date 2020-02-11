@@ -30,7 +30,6 @@ Options:
 import hashlib
 import logging
 from pathlib import Path
-import shutil
 import sys
 
 # Third-Party Libraries
@@ -296,9 +295,9 @@ def main():
         else:
             # If everything has succeeded we swap in the new file and backup the original
             logging.info(f"Backing up previous credentials file to: {backup_file}")
-            shutil.move(credentials_file, backup_file)
-            logging.info(f"Moving new credentials file to: {credentials_file}")
-            shutil.move(temp_file, credentials_file)
+            credentials_file.replace(backup_file)
+            logging.info(f"Installing new credentials file to: {credentials_file}")
+            temp_file.replace(credentials_file)
 
     # Stop logging and clean up
     logging.shutdown()
