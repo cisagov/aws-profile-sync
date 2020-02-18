@@ -63,9 +63,9 @@ def generate_profile(line_gen, config_overrides, missing_override_level=logging.
         Modified lines read from line_gen.
 
     """
-    # The first line is the profile name in brackets
-    yield next(line_gen)
     try:
+        # The first line is the profile name in brackets
+        yield next(line_gen)
         # Read until the next profile start or EOF
         while not line_gen.peek().startswith(PROFILE_START):
             line = next(line_gen)
