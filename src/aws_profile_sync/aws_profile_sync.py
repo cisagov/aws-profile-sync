@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """Synchronize AWS CLI named profiles from a remote source.
 
 This utility will fetch shared named profiles from a remote source
@@ -302,7 +300,3 @@ def main():
     # Stop logging and clean up
     logging.shutdown()
     return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
