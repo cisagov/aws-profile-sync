@@ -9,8 +9,9 @@ Based on:
 """
 
 # Standard Python Libraries
+import codecs
 from glob import glob
-from os.path import basename, splitext
+from os.path import abspath, basename, dirname, join, splitext
 
 # Third-Party Libraries
 from setuptools import find_packages, setup
@@ -22,19 +23,29 @@ def readme():
         return f.read()
 
 
-def package_vars(version_file):
-    """Read in and return the variables defined by the version_file."""
-    pkg_vars = {}
-    with open(version_file) as f:
-        exec(f.read(), pkg_vars)  # nosec
-    return pkg_vars
+# Below two methods were pulled from:
+# https://packaging.python.org/guides/single-sourcing-package-version/
+def read(rel_path):
+    """Open a file for reading from a given relative path."""
+    here = abspath(dirname(__file__))
+    with codecs.open(join(here, rel_path), "r") as fp:
+        return fp.read()
+
+
+def get_version(version_file):
+    """Extract a version number from the given file path."""
+    for line in read(version_file).splitlines():
+        if line.startswith("__version__"):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    raise RuntimeError("Unable to find version string.")
 
 
 setup(
     name="aws_profile_sync",
     # Versions should comply with PEP440
-    version=package_vars("src/aws_profile_sync/_version.py")["__version__"],
-    description="AWS Profile Sync Utility",
+    version=get_version("src/aws_profile_sync/_version.py"),
+    description="AWS Profile Sync utility",
     long_description=readme(),
     long_description_content_type="text/markdown",
     # NCATS "homepage"
@@ -66,16 +77,16 @@ setup(
     ],
     python_requires=">=3.6",
     # What does your project relate to?
-    keywords="skeleton",
+    keywords="aws profile sync",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     package_data={},
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
     include_package_data=True,
-    install_requires=["docopt", "more-itertools", "setuptools >= 24.2.0", "schema"],
+    install_requires=["docopt", "more-itertools", "schema", "setuptools >= 24.2.0"],
     extras_require={
         "test": [
-            "pre-commit",
+            "coverage",
             # coveralls 1.11.0 added a service number for calls from
             # GitHub Actions. This caused a regression which resulted in a 422
             # response from the coveralls API with the message:
@@ -83,7 +94,7 @@ setup(
             # 1.11.1 fixed this issue, but to ensure expected behavior we'll pin
             # to never grab the regression version.
             "coveralls != 1.11.0",
-            "coverage",
+            "pre-commit",
             "pytest-cov",
             "pytest",
         ]
