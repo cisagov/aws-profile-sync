@@ -232,7 +232,7 @@ def files_identical(path1, path2):
     return hash1.digest() == hash2.digest()
 
 
-def main():
+def main() -> None:
     """Set up logging and generate a new credentials file."""
     args = docopt.docopt(__doc__, version=__version__)
     # Validate and convert arguments as needed
@@ -254,7 +254,7 @@ def main():
     except SchemaError as err:
         # Exit because one or more of the arguments were invalid
         print(err, file=sys.stderr)
-        return 1
+        sys.exit(1)
 
     # Assign validated arguments to variables
     credentials_file = Path(args["--credentials-file"]).expanduser()
@@ -299,4 +299,3 @@ def main():
 
     # Stop logging and clean up
     logging.shutdown()
-    return 0
