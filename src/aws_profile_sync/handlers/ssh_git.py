@@ -6,7 +6,7 @@ from pathlib import Path
 import subprocess  # nosec: Security of subprocess has been considered
 
 
-class SSHGitHandler(object):
+class SSHGitHandler:
     """A Git repository over secure shell handler.
 
     This class can clone or update an existing clone of a remote repository that is
@@ -38,7 +38,7 @@ class SSHGitHandler(object):
             work_path: A pathlib.Path pointing to a work directory.
 
         """
-        super(SSHGitHandler, self).__init__()
+        super().__init__()
         self.work_path = work_path / SSHGitHandler.CLONE_PATH
         self.work_path.mkdir(parents=True, exist_ok=True)
 
@@ -74,6 +74,5 @@ class SSHGitHandler(object):
 
         logging.debug(f"Reading from repo: {read_file}")
         with read_file.open() as f:
-            for line in f:
-                yield line
+            yield from f
         return

@@ -103,12 +103,11 @@ def read_external(line_gen, config_overrides, missing_override_level=logging.ERR
     try:
         while True:
             if line_gen.peek().startswith(PROFILE_START):
-                for line in generate_profile(
+                yield from generate_profile(
                     line_gen,
                     config_overrides,
                     missing_override_level=missing_override_level,
-                ):
-                    yield line
+                )
             else:
                 yield next(line_gen)
     except StopIteration:
@@ -279,7 +278,7 @@ def main() -> None:
         temp_file = credentials_file.with_suffix(".temp")
         backup_file = credentials_file.with_suffix(".backup")
         logging.info(f"Writing new credentials file to: {temp_file}")
-        with open(temp_file, "wt") as out:
+        with open(temp_file, "w") as out:
             for line in generate_credentials_file(
                 credentials_file, missing_override_level
             ):
