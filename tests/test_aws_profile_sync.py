@@ -1,4 +1,3 @@
-#!/usr/bin/env pytest -vs
 """Tests for aws_profile_sync."""
 
 # Standard Python Libraries
