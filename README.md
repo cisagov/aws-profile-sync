@@ -3,7 +3,6 @@
 [![GitHub Build Status](https://github.com/cisagov/aws-profile-sync/workflows/build/badge.svg)](https://github.com/cisagov/aws-profile-sync/actions)
 [![CodeQL](https://github.com/cisagov/aws-profile-sync/workflows/CodeQL/badge.svg)](https://github.com/cisagov/aws-profile-sync/actions/workflows/codeql-analysis.yml)
 [![Coverage Status](https://coveralls.io/repos/github/cisagov/aws-profile-sync/badge.svg?branch=develop)](https://coveralls.io/github/cisagov/aws-profile-sync?branch=develop)
-[![Known Vulnerabilities](https://snyk.io/test/github/cisagov/aws-profile-sync/develop/badge.svg)](https://snyk.io/test/github/cisagov/aws-profile-sync)
 
 `aws-profile-sync` is a command line utility that simplifies the synchronization
 of
