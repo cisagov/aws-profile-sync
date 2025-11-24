@@ -13,7 +13,7 @@ across groups of users.
 
 ## Requirements ##
 
-- Python versions 3.6 and above.  Note that Python 2 *is not* supported.
+- Python versions 3.10 and above.  Note that Python 2 *is not* supported.
 - Git version 2.23 and above if using the Git handler.
 
 ## Installation ##
