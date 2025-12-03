@@ -1,8 +1,10 @@
 # aws-profile-sync ☁️🧻🚰 #
 
 [![GitHub Build Status](https://github.com/cisagov/aws-profile-sync/workflows/build/badge.svg)](https://github.com/cisagov/aws-profile-sync/actions)
+[![License](https://img.shields.io/github/license/cisagov/aws-profile-sync)](https://spdx.org/licenses/)
 [![CodeQL](https://github.com/cisagov/aws-profile-sync/workflows/CodeQL/badge.svg)](https://github.com/cisagov/aws-profile-sync/actions/workflows/codeql-analysis.yml)
 [![Coverage Status](https://coveralls.io/repos/github/cisagov/aws-profile-sync/badge.svg?branch=develop)](https://coveralls.io/github/cisagov/aws-profile-sync?branch=develop)
+[![Code Style](https://img.shields.io/badge/Code%20Style-black-black)](https://github.com/psf/black)
 
 `aws-profile-sync` is a command line utility that simplifies the synchronization
 of
@@ -11,7 +13,7 @@ across groups of users.
 
 ## Requirements ##
 
-- Python versions 3.6 and above.  Note that Python 2 *is not* supported.
+- Python versions 3.10 and above.  Note that Python 2 *is not* supported.
 - Git version 2.23 and above if using the Git handler.
 
 ## Installation ##
