@@ -37,7 +37,7 @@ dependencies = [
     "more-itertools",
     "schema",
 ]
-description = "AWS Profile Sync utility"
+description = "Utility to synchronize AWS credential profiles from remote sources"
 dynamic = ["readme", "version"]
 keywords = ["aws profile sync"]
 license = "CC0-1.0"
