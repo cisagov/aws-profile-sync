@@ -75,7 +75,8 @@ def generate_profile(line_gen, config_overrides, missing_override_level=logging.
                 if not value and key not in config_overrides:
                     logging.log(
                         missing_override_level,
-                        f"No override provided for an empty external configuration line: {key}",
+                        "No override provided for an empty external "
+                        f"configuration line: {key}",
                     )
                     if missing_override_level >= logging.ERROR:
                         raise ValueError(f"Missing override: {key}")
@@ -290,7 +291,8 @@ def main() -> None:
             logging.info("No changes applied.")
             temp_file.unlink()
         else:
-            # If everything has succeeded we swap in the new file and backup the original
+            # If everything has succeeded we swap in the new file and
+            # backup the original
             logging.info(f"Backing up previous credentials file to: {backup_file}")
             credentials_file.replace(backup_file)
             logging.info(f"Installing new credentials file to: {credentials_file}")
