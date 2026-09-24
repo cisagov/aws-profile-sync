@@ -56,7 +56,7 @@ class SSHGitHandler:
             subprocess.CalledProcessError: If a subprocess returns a non-zero exit code.
 
         """
-        repo_name = url.split("/")[-1].split(".")[0]
+        repo_name = url.split("/")[-1].removesuffix(".git")
         repo_path = self.work_path / repo_name
         read_file = repo_path / filename
 
